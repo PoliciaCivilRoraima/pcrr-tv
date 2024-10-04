@@ -48,6 +48,7 @@
                 const response = await fetch('videos.json?v=' + new Date().getTime());
                 const data = await response.json();
                 videos = data.videos;
+                console.log("Vídeos carregados:", videos);
                 initializePlayer();
             } catch (error) {
                 console.error('Erro ao carregar o arquivo JSON:', error);
@@ -75,8 +76,15 @@
         }
 
         // Carrega o próximo vídeo
-        function loadNextVideo() {
+        async function loadNextVideo() {
+            // Atualiza o índice atual de vídeo
             currentVideoIndex = (currentVideoIndex + 1) % videos.length;
+            
+            // Se retornamos ao primeiro vídeo, carregamos novamente a lista de vídeos
+            if (currentVideoIndex === 0) {
+                await loadVideos(); // Carrega vídeos novamente se todos foram reproduzidos
+            }
+
             player.loadVideoById(videos[currentVideoIndex]);
         }
 

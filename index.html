@@ -21,11 +21,20 @@
             height: 100%;
             border: none;
         }
+        #playButton {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <!-- Player do YouTube -->
     <div id="player"></div>
+    <button id="playButton">Play</button>
 
     <script>
         let videos = [];
@@ -33,7 +42,7 @@
         let player;
         let soundEnabled = false; // Para garantir que o som seja habilitado apenas uma vez
 
-        // carrega a lista de vídeos do arquivo JSON
+        // Carrega a lista de vídeos do arquivo JSON
         async function loadVideos() {
             try {
                 const response = await fetch('videos.json?v=' + new Date().getTime());
@@ -45,7 +54,7 @@
             }
         }
 
-        // inicializa o player com a lista de vídeos
+        // Inicializa o player com a lista de vídeos
         function initializePlayer() {
             if (videos.length > 0) {
                 player = new YT.Player('player', {
@@ -60,13 +69,12 @@
             }
         }
 
-        // é chamada quando o player estiver pronto
+        // É chamada quando o player estiver pronto
         function onPlayerReady(event) {
             player.mute(); // Silencia o vídeo (os navegadores não permitem reprodução automática de vídeos com som)
-            player.playVideo(); // Reproduz automaticamente
         }
 
-        // carrega o próximo vídeo
+        // Carrega o próximo vídeo
         function loadNextVideo() {
             currentVideoIndex = (currentVideoIndex + 1) % videos.length;
             player.loadVideoById(videos[currentVideoIndex]);
@@ -83,12 +91,11 @@
             }
         }
 
-        //  habilita o som após qualquer interação
+        // Habilita o som após qualquer interação
         function enableSound() {
             if (!soundEnabled) { // Verifica se o som já foi habilitado
                 player.unMute();
-                player.playVideo();
-                soundEnabled = true; // habilita o som
+                soundEnabled = true; // Habilita o som
                 removeInteractionListeners(); // Remove os eventos de interação
             }
         }
@@ -100,7 +107,7 @@
             document.body.addEventListener('scroll', enableSound);
         }
 
-        // Remover os eventos após a primeira interação
+        // Remove os eventos após a primeira interação
         function removeInteractionListeners() {
             document.body.removeEventListener('click', enableSound);
             document.body.removeEventListener('keydown', enableSound);
@@ -118,8 +125,15 @@
             loadVideos();
         }
 
-        // Adicionar os eventos de interação ao carregar a página
+        // Adiciona os eventos de interação ao carregar a página
         addInteractionListeners();
+
+        // Adiciona funcionalidade ao botão de play
+        document.getElementById('playButton').addEventListener('click', () => {
+            player.playVideo(); // Começa a reprodução do primeiro vídeo
+            enableSound(); // Habilita o som
+            document.getElementById('playButton').style.display = 'none'; // Esconde o botão de play
+        });
 
     </script>
 </body>

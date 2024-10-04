@@ -78,11 +78,12 @@
         // Carrega o próximo vídeo
         async function loadNextVideo() {
             // Atualiza o índice atual de vídeo
-            currentVideoIndex = (currentVideoIndex + 1) % videos.length;
-            
-            // Se retornamos ao primeiro vídeo, carregamos novamente a lista de vídeos
-            if (currentVideoIndex === 0) {
-                await loadVideos(); // Carrega vídeos novamente se todos foram reproduzidos
+            currentVideoIndex++;
+
+            // Verifica se o índice atual excede o comprimento da lista de vídeos
+            if (currentVideoIndex >= videos.length) {
+                currentVideoIndex = 0; // Reinicia para o primeiro vídeo
+                await loadVideos(); // Recarrega vídeos após completar a lista
             }
 
             player.loadVideoById(videos[currentVideoIndex]);

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCRR TV</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: black;
+            cursor: pointer;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Player do YouTube -->
+    <div id="player"></div>
+
+    <script>
+        let videos = [];
+        let currentVideoIndex = 0;
+        let player;
+        let soundEnabled = false; // Para garantir que o som seja habilitado apenas uma vez
+
+        // carrega a lista de vídeos do arquivo JSON
+        async function loadVideos() {
+            try {
+                const response = await fetch('videos.json');
+                const data = await response.json();
+                videos = data.videos;
+                initializePlayer();
+            } catch (error) {
+                console.error('Erro ao carregar o arquivo JSON:', error);
+            }
+        }
+
+        // inicializa o player com a lista de vídeos
+        function initializePlayer() {
+            if (videos.length > 0) {
+                player = new YT.Player('player', {
+                    height: '100%',
+                    width: '100%',
+                    videoId: videos[currentVideoIndex],
+                    events: {
+                        'onReady': onPlayerReady,
+                        'onStateChange': onPlayerStateChange
+                    }
+                });
+            }
+        }
+
+        // é chamada quando o player estiver pronto
+        function onPlayerReady(event) {
+            player.mute(); // Silencia o vídeo (os navegadores não permitem reprodução automática de vídeos com som)
+            player.playVideo(); // Reproduz automaticamente
+        }
+
+        // carrega o próximo vídeo
+        function loadNextVideo() {
+            currentVideoIndex = (currentVideoIndex + 1) % videos.length;
+            player.loadVideoById(videos[currentVideoIndex]);
+        }
+
+        // Quando o vídeo termina, carrega o próximo
+        function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.ENDED) {
+                loadNextVideo();
+            } else if (event.data === YT.PlayerState.PAUSED) {
+                enableSound(); // Habilita o som ao pausar
+            } else if (event.data === YT.PlayerState.PLAYING) {
+                enableSound(); // Habilita som ao reproduzir
+            }
+        }
+
+        //  habilita o som após qualquer interação
+        function enableSound() {
+            if (!soundEnabled) { // Verifica se o som já foi habilitado
+                player.unMute();
+                player.playVideo();
+                soundEnabled = true; // habilita o som
+                removeInteractionListeners(); // Remove os eventos de interação
+            }
+        }
+
+        // Adiciona eventos para detectar interações do usuário
+        function addInteractionListeners() {
+            document.body.addEventListener('click', enableSound);
+            document.body.addEventListener('keydown', enableSound);
+            document.body.addEventListener('scroll', enableSound);
+        }
+
+        // Remover os eventos após a primeira interação
+        function removeInteractionListeners() {
+            document.body.removeEventListener('click', enableSound);
+            document.body.removeEventListener('keydown', enableSound);
+            document.body.removeEventListener('scroll', enableSound);
+        }
+
+        // Carrega o script da API do YouTube IFrame
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        // Função chamada pela API do YouTube quando estiver pronta
+        function onYouTubeIframeAPIReady() {
+            loadVideos();
+        }
+
+        // Adicionar os eventos de interação ao carregar a página
+        addInteractionListeners();
+
+    </script>
+</body>
+</html>

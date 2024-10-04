@@ -21,20 +21,11 @@
             height: 100%;
             border: none;
         }
-        #playButton {
-            position: absolute;
-            background-color: rgba(255, 255, 255, 0.8);
-            border: none;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
     <!-- Player do YouTube -->
     <div id="player"></div>
-    <button id="playButton">Play</button>
 
     <script>
         let videos = [];
@@ -45,7 +36,7 @@
         // Carrega a lista de vídeos do arquivo JSON
         async function loadVideos() {
             try {
-                const response = await fetch('videos.json?v=' + new Date().getTime());
+                const response = await fetch('videos.json');
                 const data = await response.json();
                 videos = data.videos;
                 initializePlayer();
@@ -72,6 +63,7 @@
         // É chamada quando o player estiver pronto
         function onPlayerReady(event) {
             player.mute(); // Silencia o vídeo (os navegadores não permitem reprodução automática de vídeos com som)
+            player.playVideo(); // Reproduz automaticamente
         }
 
         // Carrega o próximo vídeo
@@ -95,6 +87,7 @@
         function enableSound() {
             if (!soundEnabled) { // Verifica se o som já foi habilitado
                 player.unMute();
+                player.playVideo();
                 soundEnabled = true; // Habilita o som
                 removeInteractionListeners(); // Remove os eventos de interação
             }
@@ -128,12 +121,17 @@
         // Adiciona os eventos de interação ao carregar a página
         addInteractionListeners();
 
-        // Adiciona funcionalidade ao botão de play
-        document.getElementById('playButton').addEventListener('click', () => {
-            player.playVideo(); // Começa a reprodução do primeiro vídeo
-            enableSound(); // Habilita o som
-            document.getElementById('playButton').style.display = 'none'; // Esconde o botão de play
-        });
+        // Função para recarregar a página
+        function reloadPageAtScheduledTimes() {
+            const now = new Date();
+            const hours = now.getHours();
+            if ((hours === 7 ) || (hours === 13 )) {
+                location.reload(); // Recarrega a página
+            }
+        }
+
+        // Verifica a hora a cada minuto
+        setInterval(reloadPageAtScheduledTimes, 3600000);
 
     </script>
 </body>

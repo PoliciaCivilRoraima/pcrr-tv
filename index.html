@@ -36,7 +36,7 @@
         // carrega a lista de vídeos do arquivo JSON
         async function loadVideos() {
             try {
-                const response = await fetch('videos.json');
+                const response = await fetch('videos.json?v=' + new Date().getTime());
                 const data = await response.json();
                 videos = data.videos;
                 initializePlayer();

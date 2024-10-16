@@ -24,6 +24,11 @@
     </style>
 </head>
 <body>
+
+    <!-- Imagem a ser exibida entre os vídeos -->
+    <img id="loadingImage" src="LOGO ASCOM.png" alt="Carregando..." style="position: absolute; width: 100%; height: 100%; object-fit: cover; display: none;">
+
+
     <!-- Player do YouTube -->
     <div id="player"></div>
 
@@ -52,6 +57,12 @@
                     height: '100%',
                     width: '100%',
                     videoId: videos[currentVideoIndex],
+                    playerVars: {
+                        'rel': 0, // Desativa os vídeos relacionados ao pausar ou ao terminar o vídeo
+                        'controls': 0, // Exibe os controles do player
+                        'showinfo': 0, // Remove informações como o título do vídeo
+                        'modestbranding': 0 // Remove a logo do YouTube do player
+                    },
                     events: {
                         'onReady': onPlayerReady,
                         'onStateChange': onPlayerStateChange
@@ -66,20 +77,31 @@
             player.playVideo(); // Reproduz automaticamente
         }
 
-        // Carrega o próximo vídeo
         function loadNextVideo() {
             currentVideoIndex = (currentVideoIndex + 1) % videos.length;
+            const loadingImage = document.getElementById('loadingImage');
+            
+            // Exibe a imagem de carregamento antes de carregar o próximo vídeo
+            loadingImage.style.display = 'block';
+            
+            // Carrega o próximo vídeo
             player.loadVideoById(videos[currentVideoIndex]);
         }
 
-        // Quando o vídeo termina, carrega o próximo
         function onPlayerStateChange(event) {
+            const loadingImage = document.getElementById('loadingImage');
+            
             if (event.data === YT.PlayerState.ENDED) {
-                loadNextVideo();
-            } else if (event.data === YT.PlayerState.PAUSED) {
-                enableSound(); // Habilita o som ao pausar
-            } else if (event.data === YT.PlayerState.PLAYING) {
-                enableSound(); // Habilita som ao reproduzir
+                // Exibe a imagem de carregamento quando o vídeo termina
+                loadingImage.style.display = 'block';
+
+                // Carrega o próximo vídeo após um pequeno atraso para simular o carregamento
+                setTimeout(loadNextVideo, 2000); // 2 segundos de "intervalo" entre os vídeos
+            } 
+            // Se o vídeo estiver tocando, remove a imagem de carregamento
+            else if (event.data === YT.PlayerState.PLAYING) {
+                loadingImage.style.display = 'none'; // Oculta a imagem quando o vídeo começa a tocar
+                enableSound(); // Habilita som ao reproduzir ou pausar
             }
         }
 

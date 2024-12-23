@@ -26,7 +26,7 @@
 <body>
 
     <!-- Imagem a ser exibida entre os vídeos -->
-    <img id="loadingImage" src="LOGO ASCOM.png" alt="Carregando..." style="position: absolute; width: 100%; height: 100%; object-fit: cover; display: none;">
+    <img id="loadingImage" src="https://raw.githubusercontent.com/PoliciaCivilRoraima/pcrr-tv/refs/heads/main/LOGO%20ASCOM.png" alt="Carregando..." style="position: absolute; width: 100%; height: 100%; object-fit: cover; display: none;">
 
 
     <!-- Player do YouTube -->
@@ -41,7 +41,7 @@
         // Carrega a lista de vídeos do arquivo JSON
         async function loadVideos() {
             try {
-                const response = await fetch('videos.json');
+                const response = await fetch('https://raw.githubusercontent.com/PoliciaCivilRoraima/pcrr-tv/refs/heads/main/videos.json');
                 const data = await response.json();
                 videos = data.videos;
                 initializePlayer();
